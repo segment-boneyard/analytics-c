@@ -36,7 +36,7 @@ Because Valgrind is buggy on OSX, we'll run it in a [Docker container](https://g
 
 ```
 $ docker build -t="analytics-c" .
-$ docker run -i dmake clean valgrind
+$ docker run -i analytics-c clean valgrind
 ```
 
 ## License
