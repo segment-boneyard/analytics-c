@@ -8,13 +8,16 @@
 #ifndef ANALYTICS_H
 #define ANALYTICS_H 1
 
+#include "list/list.h"
+
 /**
  * Return codes.
  */
 
 typedef enum {
   ANALYTICS_SUCCESS = 0,
-  ANALYTICS_MEMORY_ERROR = -1
+  ANALYTICS_MEMORY_ERROR = -1,
+  ANALYTICS_QUEUE_ERROR = -2
 } analytics_rc;
 
 /**
@@ -82,6 +85,7 @@ analytics_event_free(analytics_event_t *event);
 typedef struct {
   const char *write_key;
   const char *host;
+  list_t *queue;
 } analytics_t;
 
 // prototypes
