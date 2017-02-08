@@ -147,7 +147,6 @@ analytics_alias(analytics_t *self, const char *previous_id, const char *user_id)
   event->user_id = user_id;
 
   return ANALYTICS_SUCCESS;
-
 }
 
 /**
