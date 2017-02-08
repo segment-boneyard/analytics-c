@@ -5,30 +5,37 @@
 // Copyright (c) 2017 Segment
 //
 
-#include "analytics.h"
-#include "request.h"
-#include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
+#include "analytics.h"
 
-/*
- * Initialize with `writeKey`.
+/**
+ * Initialize with `write_key`.
  */
 
-void
-analytics_init(analytics_t *self, const char *write_key, const char *host) {
-  assert(write_key)
+analytics_t *
+analytics_init(const char *write_key) {
+  assert(write_key);
+
+  analytics_t *self;
+  if (!(self = malloc(sizeof(analytics_t)))) {
+    return NULL;
+  }
+
   self->write_key = write_key;
-  self->host = host || "https://api.segment.com";
+  self->host = "https://api.segment.com";
+
+  return self;
 }
 
-/*
+/**
  * Free up analytics after use.
  */
 
 void
 analytics_free(analytics_t *self) {
-  free(self->writeKey);
-  free(self->host);
+  free(self);
+  self = NULL;
 }
 
 /**
@@ -57,6 +64,11 @@ analytics_event_new (analytics_method_t type) {
   event->properties = NULL;
 
   return event;
+}
+
+void
+analytics_event_free(analytics_event_t *event) {
+  free(event);
 }
 
 /**
@@ -107,7 +119,7 @@ analytics_page(analytics_t *self, const char *event_name, const char *userId, an
     return ANALYTICS_MEMORY_ERROR;
   }
 
-  event->name = name;
+  event->name = event_name;
   event->properties = properties;
 
   return ANALYTICS_SUCCESS;
@@ -125,7 +137,7 @@ analytics_screen(analytics_t *self, const char *event_name, const char *userId, 
     return ANALYTICS_MEMORY_ERROR;
   }
 
-  event->name = name;
+  event->name = event_name;
   event->properties = properties;
 
   return ANALYTICS_SUCCESS;

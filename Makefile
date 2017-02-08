@@ -4,4 +4,7 @@ test: test.c analytics.c
 clean:
 	rm -f test
 
-.PHONY: clean
+valgrind: test
+	valgrind --leak-check=full ./$<
+
+.PHONY: clean valgrind
