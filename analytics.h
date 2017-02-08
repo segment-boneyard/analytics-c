@@ -69,6 +69,13 @@ analytics_event_t *
 analytics_event_new(analytics_method_t type);
 
 /**
+ * Free memory associated with an event.
+ */
+
+void
+analytics_event_free(analytics_event_t *event);
+
+/**
  * Analytics.
  */
 
@@ -79,8 +86,8 @@ typedef struct {
 
 // prototypes
 
-void
-analytics_init(analytics_t *self, const char *write_key, const char *host);
+analytics_t *
+analytics_init(const char *write_key);
 
 void
 analytics_free(analytics_t *self);
