@@ -6,50 +6,101 @@
 //
 
 #ifndef ANALYTICS_H
-#define ANALYTICS_H
+#define ANALYTICS_H 1
 
 /**
- * Analytics struct.
+ * Return codes.
  */
 
-struct analytics;
+typedef enum {
+  ANALYTICS_SUCCESS = 0,
+  ANALYTICS_MEMORY_ERROR = -1
+} analytics_rc;
 
-/*
- * Callback.
+/**
+ * Analytics API method types.
  */
 
-typedef void (* analytics_callback_t)(struct analytics *self);
+typedef enum {
+  ANALYTICS_METHOD_IDENTIFY,
+  ANALYTICS_METHOD_TRACK,
+  ANALYTICS_METHOD_PAGE,
+  ANALYTICS_METHOD_SCREEN,
+  ANALYTICS_METHOD_GROUP,
+  ANALYTICS_METHOD_ALIAS
+} analytics_method_t;
+
+/**
+ * Analytics hashmap.
+ */
+
+typedef struct {
+  // this is for stuff like:
+  //   - properties
+  //   - traits
+  //   - context
+  int foo;
+} analytics_hashmap_t;
+
+/**
+ * Event structure.
+ */
+
+typedef struct {
+  analytics_method_t method;
+
+  const char *event;
+  const char *name;
+
+  const char *group_id;
+  const char *user_id;
+  const char *anonymous_id;
+  const char *previous_id;
+
+  analytics_hashmap_t *traits;
+  analytics_hashmap_t *properties;
+} analytics_event_t;
+
+/**
+ * Create a new event.
+ */
+
+analytics_event_t *
+analytics_event_new(analytics_method_t type);
 
 /**
  * Analytics.
  */
 
-typedef struct analytics {
-  const char *writeKey;
+typedef struct {
+  const char *write_key;
   const char *host;
 } analytics_t;
 
 // prototypes
 
 void
-analytics_init(analytics_t *self, const char *writeKey, const char *host);
+analytics_init(analytics_t *self, const char *write_key, const char *host);
 
 void
 analytics_free(analytics_t *self);
 
-void
-analytics_track(analytics_t *self, /* message */, analytics_callback_t cb);
+int
+analytics_track(analytics_t *self, const char *event_name, const char *user_id, analytics_hashmap_t *properties);
 
-void
-analytics_identify(analytics_t *self, /* message */, analytics_callback_t cb);
+int
+analytics_identify(analytics_t *self, const char *user_id, analytics_hashmap_t *traits);
 
-void
-analytics_page(analytics_t *self, /* message */, analytics_callback_t cb);
+int
+analytics_page(analytics_t *self, const char *event_name, const char *user_id, analytics_hashmap_t *properties);
 
-void
-analytics_alias(analytics_t *self, /* message */, analytics_callback_t cb);
+int
+analytics_screen(analytics_t *self, const char *event_name, const char *user_id, analytics_hashmap_t *properties);
 
-void
-analytics_group(analytics_t *self, /* message */, analytics_callback_t cb);
+int
+analytics_alias(analytics_t *self, const char *previous_id, const char *user_id);
+
+int
+analytics_group(analytics_t *self, const char *group_id, analytics_hashmap_t *traits);
 
 #endif // ANALYTICS_H
