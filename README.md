@@ -1,4 +1,4 @@
-# analytics-c
+# analytics-c (WIP)
 
 A C client for Segment — The hassle-free way to integrate analytics into any application.
 
