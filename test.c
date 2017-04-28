@@ -202,6 +202,17 @@ int main () {
 
       analytics_hashmap_free(hash);
     }
+
+    it("should serialize an empty map") {
+      analytics_hashmap_t *hash = analytics_hashmap_new();
+
+      const char *str = analytics_hashmap_serialize(hash);
+      assert_str_equal(str, "{}");
+
+      free((char*)str);
+
+      analytics_hashmap_free(hash);
+    }
   }
 
   return assert_failures();

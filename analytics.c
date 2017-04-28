@@ -244,13 +244,15 @@ analytics_hashmap_get(analytics_hashmap_t *self, const char *key) {
 
 const char *
 analytics_hashmap_serialize(analytics_hashmap_t *self) {
-  char *result = malloc(1);
-  int length = 0;
-  result[0] = 0;
+  char *result = malloc(2);
+  int length = 1;
 
   if (result == NULL) {
     return NULL;
   }
+
+  result[0] = '{';
+  result[1] = '\0';
 
   for (khiter_t k = kh_begin(self); k < kh_end(self); ++k) {
     if (!kh_exist(self, k)) {
@@ -259,9 +261,8 @@ analytics_hashmap_serialize(analytics_hashmap_t *self) {
 
     const char *key = kh_key(self, k);
     const char *value = (char *) kh_value(self, k);
-
-    const char *fmt = length == 0
-      ? "{\n  \"%s\": \"%s\""
+    const char *fmt = length == 1
+      ? "\n  \"%s\": \"%s\""
       : ",\n  \"%s\": \"%s\"";
     char *tmp = NULL;
     int adding = asprintf(&tmp, fmt, key, value);
@@ -282,9 +283,16 @@ analytics_hashmap_serialize(analytics_hashmap_t *self) {
     free(tmp);
     length += adding;
   }
-  length += 3;
-  result = realloc(result, length);
-  strncat(result, "\n}\0", 3);
+
+  if (length == 1) {
+    length += 2;
+    result = realloc(result, length);
+    strncat(result, "}\0", 2);
+  } else {
+    length += 3;
+    result = realloc(result, length);
+    strncat(result, "\n}\0", 3);
+  }
 
   return result;
 }
