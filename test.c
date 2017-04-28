@@ -193,7 +193,7 @@ int main () {
       const char *expected = "{\n"
                              "  \"foo\": \"bar\",\n"
                              "  \"baz\": \"qux\"\n"
-                             "}\n";
+                             "}";
 
       const char *str = analytics_hashmap_serialize(hash);
       assert_str_equal(str, expected);
