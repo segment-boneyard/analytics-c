@@ -9,6 +9,10 @@
 #define ANALYTICS_H 1
 
 #include "list/list.h"
+#include "khash/khash.h"
+
+// use pointers
+KHASH_MAP_INIT_STR(ptr, void *)
 
 /**
  * Return codes.
@@ -37,13 +41,7 @@ typedef enum {
  * Analytics hashmap.
  */
 
-typedef struct {
-  // this is for stuff like:
-  //   - properties
-  //   - traits
-  //   - context
-  int foo;
-} analytics_hashmap_t;
+typedef khash_t(ptr) analytics_hashmap_t;
 
 /**
  * Event structure.
@@ -113,5 +111,18 @@ analytics_alias(analytics_t *self, const char *previous_id, const char *user_id)
 
 int
 analytics_group(analytics_t *self, const char *group_id, analytics_hashmap_t *traits);
+
+#define analytics_hashmap_new() kh_init(ptr)
+
+#define analytics_hashmap_free(self) kh_destroy(ptr, self)
+
+void
+analytics_hashmap_set(analytics_hashmap_t *self, const char *key, const char *value);
+
+const char *
+analytics_hashmap_get(analytics_hashmap_t *self, const char *key);
+
+const char *
+analytics_hashmap_serialize(analytics_hashmap_t *self);
 
 #endif // ANALYTICS_H

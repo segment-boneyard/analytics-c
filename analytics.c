@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "list/list.h"
+#include "asprintf/asprintf.h"
 #include "analytics.h"
 
 static void __analytics_event_free(void *_);
@@ -82,6 +83,7 @@ analytics_event_new (analytics_method_t type) {
 void
 analytics_event_free(analytics_event_t *event) {
   free(event);
+  event = NULL;
 }
 
 // it's gross, i know
@@ -209,4 +211,88 @@ analytics_group(analytics_t *self, const char *group_id, analytics_hashmap_t *tr
   event->traits = traits;
 
   return analytics_enqueue(self, event);
+}
+
+/**
+ * Set `key` to `value`.
+ */
+
+void
+analytics_hashmap_set(analytics_hashmap_t *self, const char *key, const char *value) {
+  int p;
+  khiter_t k = kh_put(ptr, self, key, &p);
+  kh_value(self, k) = (void *) value;
+}
+
+/**
+ * Get the value of `key`.
+ */
+
+const char *
+analytics_hashmap_get(analytics_hashmap_t *self, const char *key) {
+  khiter_t k = kh_get(ptr, self, key);
+  return kh_end(self) == k
+    ? NULL
+    : (char *) kh_value(self, k);
+}
+
+/**
+ * Serialize the map to a string.
+ *
+ * Free the value when done.
+ */
+
+const char *
+analytics_hashmap_serialize(analytics_hashmap_t *self) {
+  char *result = malloc(2);
+  int length = 1;
+
+  if (result == NULL) {
+    return NULL;
+  }
+
+  result[0] = '{';
+  result[1] = '\0';
+
+  for (khiter_t k = kh_begin(self); k < kh_end(self); ++k) {
+    if (!kh_exist(self, k)) {
+      continue;
+    }
+
+    const char *key = kh_key(self, k);
+    const char *value = (char *) kh_value(self, k);
+    const char *fmt = length == 1
+      ? "\n  \"%s\": \"%s\""
+      : ",\n  \"%s\": \"%s\"";
+    char *tmp = NULL;
+    int adding = asprintf(&tmp, fmt, key, value);
+    if (adding == -1) {
+      free(result);
+      return NULL;
+    }
+
+    result = realloc(result, length + adding + 1);
+    if (result == NULL) {
+      return NULL;
+    }
+
+    char *pos = result + length;
+
+    memset(pos, '\0', adding + 1); /* valgrind yells */
+    memcpy(pos, tmp, adding);
+    free(tmp);
+    length += adding;
+  }
+
+  if (length == 1) {
+    length += 2;
+    result = realloc(result, length);
+    strncat(result, "}\0", 2);
+  } else {
+    length += 3;
+    result = realloc(result, length);
+    strncat(result, "\n}\0", 3);
+  }
+
+  return result;
 }

@@ -4,4 +4,6 @@ dependencies:
 
 test:
   override:
+    - make example && ./example
+    - make test
     - make valgrind
