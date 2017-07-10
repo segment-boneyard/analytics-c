@@ -2,6 +2,8 @@
 
 A C client for Segment — The hassle-free way to integrate analytics into any application.
 
+This library does not work.
+
 ## Example
 
 ```c
